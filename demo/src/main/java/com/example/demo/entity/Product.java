@@ -1,9 +1,12 @@
 package com.example.demo.entity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "products")
 @Entity
@@ -36,14 +39,22 @@ public class Product {
     @Column
     private LocalDateTime updated_at = LocalDateTime.now();
 
-    public Product(int id, String name, String description, Double price, String image_url, int stock, LocalDateTime created_at, LocalDateTime updated_at) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.image_url = image_url;
-        this.stock = stock;
-        this.created_at = created_at;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("product") // evita ciclos infinitos al serializar
+    private List<Comment> comments = new ArrayList<>();
+
+    public Product(List<Comment> comments, LocalDateTime updated_at, LocalDateTime created_at, int stock, String image_url, Double price, String description, String name, int id) {
+        this.comments = comments;
         this.updated_at = updated_at;
+        this.created_at = created_at;
+        this.stock = stock;
+        this.image_url = image_url;
+        this.price = price;
+        this.description = description;
+        this.name = name;
+        this.id = id;
+    }
+
+    public Product() {
     }
 }
