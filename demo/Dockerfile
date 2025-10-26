@@ -5,7 +5,7 @@ COPY demo/ .
 RUN gradle bootJar --no-daemon
 
 # Etapa 2: Ejecución
-FROM openjdk21-jdk-slim
+FROM openjdk:21-jdk-slim
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
