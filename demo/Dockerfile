@@ -1,11 +1,11 @@
 # Etapa 1: Construcción
-FROM gradle:8.5-jdk17 AS builder
+FROM gradle:8.5-jdk21 AS builder
 WORKDIR /app
 COPY demo/ .
 RUN gradle bootJar --no-daemon
 
 # Etapa 2: Ejecución
-FROM openjdk:17-jdk-slim
+FROM openjdk21-jdk-slim
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
