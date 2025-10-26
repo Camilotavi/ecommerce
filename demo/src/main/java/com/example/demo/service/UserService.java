@@ -36,6 +36,11 @@ public class UserService
         return this.userRepository.findUserByemail(email);
     }
 
+    public int getIdByEmail(String email){
+        User user = this.userRepository.findUserByemail(email);
+        return user.getId();
+    }
+
     public void updateUser(String email, updateUserDTO newUser)
     {
         User currentUser=this.getUserByEmail(email);
