@@ -1,7 +1,7 @@
 # Etapa 1: Construcción
 FROM gradle:8.5-jdk17 AS builder
 WORKDIR /app
-COPY . .
+COPY demo/ .
 RUN gradle bootJar --no-daemon
 
 # Etapa 2: Ejecución
