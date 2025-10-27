@@ -38,7 +38,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/products/{id}/ncomment")
+    @PostMapping("/products/ncomment")
     public ResponseEntity<Comment> postComment(Authentication authentication, @RequestBody CommentDTO commentDTO){
         try{
             String name = authentication.getName();

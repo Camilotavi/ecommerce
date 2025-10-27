@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -51,7 +52,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
@@ -67,19 +68,20 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/auth/welcome").permitAll()
+                        .requestMatchers("/login", "/register", "/auth/welcome", "/user/addingUser").permitAll()
                         .requestMatchers("/auth/admin/**").hasRole("admin")
                         .requestMatchers("/auth/user/**").hasAnyRole("admin", "user")
                         .anyRequest().authenticated()
                 )
-                // ❌ Deshabilitamos el login HTML de Spring
+
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-                // ✅ Permitimos sesiones
+                .securityContext(context ->
+                        context.securityContextRepository(new HttpSessionSecurityContextRepository())
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
-                // ✅ Permitimos logout manual
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)

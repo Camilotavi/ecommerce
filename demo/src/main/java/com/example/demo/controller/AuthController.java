@@ -40,16 +40,14 @@ public class AuthController {
 
             Authentication authentication = authenticationManager.authenticate(authToken);
 
-            // ✅ Guardar autenticación en el contexto
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            loginRequest.getSession(true); // ✅ esto crea la sesión
+            loginRequest.getSession(true);
 
 
-            // ✅ Asociar el contexto a la sesión HTTP
             HttpSession session = loginRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", context);
 
