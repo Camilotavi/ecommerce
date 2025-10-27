@@ -60,9 +60,9 @@ public class UserController
     }
 
     @DeleteMapping("/auth/user/delete/me")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") int id) {
+    public ResponseEntity<String> deleteUser(Authentication authentication) {
         try {
-            services.deleteUser(id);
+            services.deleteUser(services.getIdByEmail(authentication.getName()));
             return ResponseEntity.ok("Usuario eliminado exitosamente");
         } catch (Exception e) {
             e.printStackTrace();

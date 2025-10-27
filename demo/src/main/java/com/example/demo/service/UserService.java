@@ -63,6 +63,17 @@ public class UserService
         this.userRepository.save(user);
     }
 
+    public boolean checkUser(String email, String pass){
+        User user = this.getUserByEmail(email);
+
+        if(passwordEncoder.matches(pass,user.getPassword_hash())){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
     public boolean validateLoginCredentials(String email,String password)
     {
         User user = userRepository.findUserByemail(email);
