@@ -24,7 +24,7 @@ jobs:
           context: .
           file: ./demo/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecommerce:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/ecommerce:patched
         env:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
