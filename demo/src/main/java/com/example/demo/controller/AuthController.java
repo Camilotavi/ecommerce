@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.DTO.LoginRequest;
 import com.example.demo.entity.User;
+import com.example.demo.service.LoginAttemptService;
 import com.example.demo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -15,9 +16,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 @RestController
 public class AuthController {
+
+    @Autowired
+    private LoginAttemptService loginAttemptService;
     
     @Autowired
     private UserService userService;
@@ -41,7 +45,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest loginRequest) {
 
-        System.out.println("USUARIO RECIBIDO: "+ request.getEmail());
+        String clientIP = getClientIP(loginRequest);
+        if (loginAttemptService.isBlocked(clientIP)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body("Demasiados intentos fallidos. Intente nuevamente más tarde.");
+        }
 
         try {
             UsernamePasswordAuthenticationToken authToken =
@@ -49,27 +57,33 @@ public class AuthController {
 
             Authentication authentication = authenticationManager.authenticate(authToken);
 
+            // Si llega aquí → login exitoso
+            loginAttemptService.loginSucceeded(clientIP);
+
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            loginRequest.getSession(true);
-
-
             HttpSession session = loginRequest.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", context);
 
-            // Buscar info del usuario
             User user = userService.getUserByEmail(request.getEmail());
-
-            // Retornar datos al front
             return ResponseEntity.ok(new UserResponse(user.getEmail(), String.valueOf(user.getRole())));
+
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Cai aca");
+            loginAttemptService.loginFailed(clientIP);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
     }
+
+    private String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0];
+    }
+
     public record UserResponse(String username, String role) {}
+
 }
