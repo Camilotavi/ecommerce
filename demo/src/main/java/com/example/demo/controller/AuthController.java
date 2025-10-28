@@ -29,6 +29,15 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    @GetMapping("/auth/verify")
+    public ResponseEntity<?> verifySession(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sesión inválida");
+        }
+        return ResponseEntity.ok("Sesión válida");
+    }
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest loginRequest) {
 

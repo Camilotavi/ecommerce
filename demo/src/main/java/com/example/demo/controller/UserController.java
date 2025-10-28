@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.DTO.updateUserDTO;
 import com.example.demo.entity.User;
+import com.example.demo.service.CouponService;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,9 @@ public class UserController
     @Autowired
     private UserService services;
 
+    @Autowired
+    private CouponService couponService;
+
     @RequestMapping("/auth/welcome")
     public String welcome() {
         return "Welcome, this endpoint is not secure";
@@ -26,11 +30,12 @@ public class UserController
         try {
             System.out.println(user);
             services.addUser(user);
+            couponService.createCoupon(user.getEmail());
             return ResponseEntity.ok("Usuario guardado exitosamente");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al guardar el usuario");
+                    .body("Error al crear el usuario");
         }
     }
 

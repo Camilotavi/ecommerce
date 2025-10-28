@@ -2,8 +2,10 @@ package com.example.demo.controller;
 
 
 import com.example.demo.DTO.OrderDTO;
+import com.example.demo.entity.Coupon;
 import com.example.demo.entity.Order;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.CouponService;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class OrderController {
     private UserService userService;
 
     @Autowired
+    private CouponService couponService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @PostMapping("/order")
@@ -36,6 +41,9 @@ public class OrderController {
 
 
         Order order = orderService.addOrder(request,userService.getIdByEmail(name));
+        if(request.getPayment_method()== Order.PaymentMethod.code){
+            Coupon cupon = couponService.denyCoupon(authentication.getName());
+        }
         return ResponseEntity.ok(order);
     }
 /*
